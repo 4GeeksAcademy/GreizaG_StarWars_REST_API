@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Users
+from models import db, Users, Characters
 #from models import Person
 
 app = Flask(__name__)
@@ -84,3 +84,59 @@ def new_user():
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
+
+# Traer todos los personajes
+@app.route('/characters', methods=['GET'])
+def get_all_characters():
+    all_characters = Characters.query.all()
+    characters_serialized = []
+    for character in all_characters:
+        characters_serialized.append(character.serialize())
+    print(characters_serialized)
+    return jsonify({"data": characters_serialized}), 200
+
+# Traer un sólo personaje
+@app.route('/characters/<int:id>', methods=['GET'])
+def get_single_character(id):
+    single_character = Characters.query.get(id)
+    if single_character is None:
+        return jsonify({"msg": "Character with id: {}, not found".format(id)}), 400
+    return jsonify({"data": single_character.serialize()}), 200
+
+# Crear nuevo personaje
+@app.route('/character', methods=['POST'])
+def new_character():
+    body = request.get_json(silent=True)
+    if body is None:
+        return jsonify({"msg": "You should send info in body"}), 400
+    if  "name" not in body:
+        return jsonify({"msg": "Name is needed"}), 400
+    if "heigth" not in body:
+        return jsonify({"msg": "Heigth is needed"}), 400
+    if "mass" not in body:
+        return jsonify({"msg": "Mass is needed"}), 400
+    if "hair_color" not in body:
+        return jsonify({"msg": "Hair color is needed"}), 400
+    if "eye_color" not in body:
+        return jsonify({"msg": "Eye color is needed"}), 400
+    if "skin_color" not in body:
+        return jsonify({"msg": "Skin color is needed"}), 400
+    if "birth_year" not in body:
+        return jsonify({"msg": "Birth year is needed"}), 400
+    if "gender" not in body:
+        return jsonify({"msg": "Gender is needed"}), 400
+    
+    new_character = Characters()
+    new_character.id = body.get("id", Characters.generateId())
+    new_character.name = body["name"]
+    new_character.heigth = body["heigth"]
+    new_character.mass = body["mass"]
+    new_character.hair_color = body["hair_color"]
+    new_character.eye_color = body["eye_color"]
+    new_character.skin_color = body["skin_color"]
+    new_character.birth_year = body["birth_year"]
+    new_character.gender = body ["gender"]
+    db.session.add(new_character)
+    db.session.commit()
+    
+    return jsonify({"data": new_character.serialize()}), 201
