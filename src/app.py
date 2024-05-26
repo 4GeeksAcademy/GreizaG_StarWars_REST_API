@@ -386,3 +386,21 @@ def delete_character(id):
         characters_list.append(character.serialize())
 
     return jsonify({"Upgrated characters list": characters_list}), 200
+
+# Borrar nave
+@app.route('/starships/<int:id>', methods=['DELETE'])
+def delete_starship(id):
+    starship_to_delete = Starships.query.get(id)
+    if starship_to_delete is None:
+        return jsonify({"msg": "Starship not found"}), 404
+
+    db.session.delete(starship_to_delete)
+    db.session.commit()
+
+    upgrated_starships_list = Starships.query.all()
+    starships_list = []
+    for starship in upgrated_starships_list:
+        starships_list.append(starship.serialize())
+
+    return jsonify({"Upgrated starships list": starships_list}), 200
+
