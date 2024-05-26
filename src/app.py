@@ -245,7 +245,7 @@ def new_planet():
     return jsonify({"data": new_planet.serialize()}), 201
 
 # Traer todos los favoritos de un usuario
-@app.route('/users/<int:id>/favorite')
+@app.route('/users/<int:id>/favorites')
 def user_favorite_list(id):
     favorite_characters = db.session.query(FavoriteCharacters, Characters).join(Characters).filter(FavoriteCharacters.user_id == id).all()
     favorite_characters_serialized = []
@@ -263,3 +263,17 @@ def user_favorite_list(id):
         favorite_planets_serialized.append(planet.serialize()["name"])
     
     return jsonify({"favorites": {"characters": favorite_characters_serialized, "starships": favorite_starships_serialized, "planets": favorite_planets_serialized}}), 200
+
+# Editar usuario
+@app.route('/users/<int:id>', methods=['PUT'])
+def edit_user(id):
+    body = request.get_json(silent=True)
+    user_to_edit = Users.query.get(id)
+    if user_to_edit is None:
+        return jsonify({"msg": "User not found"}), 404
+    if "name" in body:
+        user_to_edit.name = body["name"]
+    if "last_name" in body:
+        user_to_edit.last_name = body["last_name"]
+    db.session.commit()
+    return jsonify({"user edited": user_to_edit.serialize()})
