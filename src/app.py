@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Users, Characters, Starships, Planets
+from models import db, Users, Characters, Starships, Planets, FavoriteCharacters, FavoriteStarships, FavoritePlanets
 #from models import Person
 
 app = Flask(__name__)
@@ -243,3 +243,23 @@ def new_planet():
     db.session.commit()
 
     return jsonify({"data": new_planet.serialize()}), 201
+
+# Traer todos los favoritos de un usuario
+@app.route('/users/<int:id>/favorite')
+def user_favorite_list(id):
+    favorite_characters = db.session.query(FavoriteCharacters, Characters).join(Characters).filter(FavoriteCharacters.user_id == id).all()
+    favorite_characters_serialized = []
+    for favorite_character, character in favorite_characters:
+        favorite_characters_serialized.append({"character": character.serialize()})
+    
+    favorite_starships = db.session.query(FavoriteStarships, Starships).join(Starships).filter(FavoriteStarships.user_id == id).all()
+    favorite_starships_serialized = []
+    for favorite_starship, starship in favorite_starships:
+        favorite_starships_serialized.append({"starship": starship.serialize()})
+
+    favorite_planets = db.session.query(FavoritePlanets, Planets).join(Planets).filter(FavoritePlanets.user_id == id).all()
+    favorite_planets_serialized = []
+    for favorite_planet, planet in favorite_planets:
+        favorite_planets_serialized.append({"planet": planet.serialize()})
+    
+    return jsonify({"favorites": {"characters": favorite_characters_serialized, "starships": favorite_starships_serialized, "planets": favorite_planets_serialized}}), 200
