@@ -250,16 +250,16 @@ def user_favorite_list(id):
     favorite_characters = db.session.query(FavoriteCharacters, Characters).join(Characters).filter(FavoriteCharacters.user_id == id).all()
     favorite_characters_serialized = []
     for favorite_character, character in favorite_characters:
-        favorite_characters_serialized.append({"character": character.serialize()})
+        favorite_characters_serialized.append(character.serialize()["name"])
     
     favorite_starships = db.session.query(FavoriteStarships, Starships).join(Starships).filter(FavoriteStarships.user_id == id).all()
     favorite_starships_serialized = []
     for favorite_starship, starship in favorite_starships:
-        favorite_starships_serialized.append({"starship": starship.serialize()})
+        favorite_starships_serialized.append(starship.serialize()["name"])
 
     favorite_planets = db.session.query(FavoritePlanets, Planets).join(Planets).filter(FavoritePlanets.user_id == id).all()
     favorite_planets_serialized = []
     for favorite_planet, planet in favorite_planets:
-        favorite_planets_serialized.append({"planet": planet.serialize()})
+        favorite_planets_serialized.append(planet.serialize()["name"])
     
     return jsonify({"favorites": {"characters": favorite_characters_serialized, "starships": favorite_starships_serialized, "planets": favorite_planets_serialized}}), 200
