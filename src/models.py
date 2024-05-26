@@ -14,6 +14,9 @@ class Users(db.Model):
     last_name = db.Column(db.String(32))
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(32), nullable=False)
+    user_favorite_characters = db.relationship("FavoriteCharacters", back_populates="user_id_relationship")
+    user_favorite_starships = db.relationship("FavoriteStarships", back_populates="user_id_relationship")
+    user_favorite_planets = db.relationship("FavoritePlanets", back_populates="user_id_relationship")
     
     def generateId():
         global last_id_users
@@ -42,6 +45,7 @@ class Characters(db.Model):
     skin_color = db.Column(db.String(20))
     birth_year = db.Column(db.String(20))
     gender = db.Column(db.String(20))
+    favorite_characters = db.relationship("FavoriteCharacters", cascade="all, delete", back_populates="character_id_relationship")
 
     def generateId():
         global last_id_characters
@@ -73,6 +77,7 @@ class Starships(db.Model):
     length = db.Column(db.Integer)
     crew = db.Column(db.String(20))
     passengers = db.Column(db.String(20))
+    favorite_starships = db.relationship("FavoriteStarships", cascade="all, delete", back_populates="starship_id_relationship")
 
     def generateId():
         global last_id_starships
@@ -103,6 +108,7 @@ class Planets(db.Model):
     climate = db.Column(db.String(50))
     terrain = db.Column(db.String(50))
     surface_water = db.Column(db.String(20))
+    favorite_planets = db.relationship("FavoritePlanets", cascade="all, delete", back_populates="planet_id_relationship")
 
     def generateId():
         global last_id_planets
@@ -128,9 +134,9 @@ class FavoriteCharacters(db.Model):
     __tablename__ = 'favorite_characters'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user_id_relationship = db.relationship(Users)
+    user_id_relationship = db.relationship("Users", back_populates="user_favorite_characters")
     character_id = db.Column(db.Integer, db.ForeignKey('characters.id'))
-    character_id_relationship = db.relationship(Characters)
+    character_id_relationship = db.relationship("Characters", back_populates="favorite_characters")
 
     def __repr__(self):
         return f"User: {self.user_id} -> likes character {self.character_id}"
@@ -146,9 +152,9 @@ class FavoriteStarships(db.Model):
     __tablename__ = 'favorite_starships'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user_id_relationship = db.relationship(Users)
+    user_id_relationship = db.relationship("Users", back_populates="user_favorite_starships")
     starship_id = db.Column(db.Integer, db.ForeignKey('starships.id'))
-    starship_id_relationship = db.relationship(Starships)
+    starship_id_relationship = db.relationship("Starships", back_populates="favorite_starships")
 
     def __repr__(self):
         return f"User: {self.user_id} -> likes starship: {self.starship_id}"
@@ -164,9 +170,9 @@ class FavoritePlanets(db.Model):
     __tablename__ = 'favorite_planets'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user_id_relationship = db.relationship(Users)
+    user_id_relationship = db.relationship("Users", back_populates="user_favorite_planets")
     planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'))
-    planet_id_relationship = db.relationship(Planets)
+    planet_id_relationship = db.relationship("Planets", back_populates="favorite_planets")
 
     def __repr__(self):
         return f"User: {self.user_id} -> likes planet: {self.planet_id}"
