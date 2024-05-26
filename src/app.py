@@ -304,3 +304,26 @@ def edit_character(id):
 
     db.session.commit()
     return jsonify({"character edited": character_to_edit.serialize()})
+
+# Editar nave
+@app.route('/starships/<int:id>', methods=['PUT'])
+def edit_starship(id):
+    body = request.get_json(silent=True)
+    starship_to_edit = Starships.query.get(id)
+    if starship_to_edit is None:
+        return jsonify({"msg": "Starship not found"}), 404
+    if "name" in body:
+        starship_to_edit.name = body["name"]
+    if "model" in body:
+        starship_to_edit.last_name = body["model"]
+    if "starship_class" in body:
+        starship_to_edit = body["starship_class"]
+    if "length" in body:
+        starship_to_edit = body["length"]
+    if "crew" in body:
+        starship_to_edit = body["crew"]
+    if "passengers" in body:
+        starship_to_edit = body["passengers"]
+
+    db.session.commit()
+    return jsonify({"character edited": starship_to_edit.serialize()})
