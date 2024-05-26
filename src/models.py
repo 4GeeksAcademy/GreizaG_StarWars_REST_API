@@ -123,3 +123,22 @@ class Planets(db.Model):
             "terrain": self.terrain,
             "surface_water": self.surface_water
         }
+
+class FavoriteCharacters(db.Model):
+    __tablename__ = 'favorite_characters'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id_relationship = db.relationship(Users)
+    character_id = db.Column(db.Integer, db.ForeignKey('characters.id'))
+    character_id_relationship = db.relationship(Characters)
+
+    def __repr__(self):
+        return f"User: {self.user_id} -> likes character {self.character_id}"
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "character_id": self.character_id
+        }
+    
