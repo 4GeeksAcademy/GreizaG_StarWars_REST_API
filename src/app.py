@@ -420,3 +420,63 @@ def delete_planet(id):
         planets_list.append(planet.serialize())
 
     return jsonify({"Upgrated planets list": planets_list}), 200
+
+# Borrar personaje favorito
+@app.route('/users/<int:user_id>/favorite/character/{body}', methods=['DELETE'])
+def delete_favorite_character(user_id):
+    body = request.get_json(silent=True)
+    favorite_character_to_delete = FavoriteCharacters.query.get(body["character_id"])
+    if favorite_character_to_delete is None:
+        return jsonify({"msg": "Favorite Character not found"}), 404
+    
+    db.session.delete(favorite_character_to_delete)
+    db.session.commit()
+
+    upgrated_favorite_characters_list = FavoriteCharacters.query.all()
+    favorite_characters_list = []
+    for favorite_character in upgrated_favorite_characters_list:
+        favorite_characters_list.append(favorite_character.serialize()["name"])
+    
+    return jsonify({"Upgrated Favorite Character list": favorite_characters_list})
+
+# @app.route('/users/<int:name>/favorites', methods=['DELETE'])
+# def delete_favorite(name):
+#     favorite_character_to_delete = FavoriteCharacters.query.all(name)
+#     if favorite_character_to_delete is None:
+#         return jsonify({"msg": "Favorite Character not found"}), 404
+    
+#     db.session.delete(favorite_character_to_delete)
+#     db.session.commit()
+
+#     upgrated_favorite_characters_list = FavoriteCharacters.query.all()
+#     favorite_characters_list = []
+#     for favorite_character in upgrated_favorite_characters_list:
+#         favorite_characters_list.append(favorite_character.serialize()["name"])
+    
+#     favorite_starship_to_delete = FavoriteStarships.query.all(name)
+#     if favorite_starship_to_delete is None:
+#         return jsonify({"msg": "Favorite Starship not found"}), 404
+    
+#     db.session.delete(favorite_starship_to_delete)
+#     db.session.commit()
+
+#     upgrated_favorite_starships_list = FavoriteStarships.query.all()
+#     favorite_starships_list = []
+#     for favorite_starship in upgrated_favorite_starships_list:
+#         favorite_starships_list.append(favorite_starship.serialize()["name"])
+
+#     favorite_planet_to_delete = FavoritePlanets.query.all(name)
+#     if favorite_planet_to_delete is None:
+#         return jsonify({"msg": "Favorite Planet not found"}), 404
+    
+#     db.session.delete(favorite_planet_to_delete)
+#     db.session.commit()
+
+#     upgrated_favorite_planets_list = FavoritePlanets.query.all()
+#     favorite_planets_list = []
+#     for favorite_planet in upgrated_favorite_planets_list:
+#         favorite_planets_list.append(favorite_planet.serialize()["name"])
+
+#     return jsonify({"favorites": {"Characters": favorite_characters_list, "Starships": favorite_starships_list, "Planets": favorite_planets_list}}), 200
+
+    
