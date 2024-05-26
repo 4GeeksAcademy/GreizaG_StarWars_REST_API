@@ -370,3 +370,19 @@ def delete_user(id):
 
     return jsonify({"Upgrated users list": users_list}), 200
 
+# Borrar personaje
+@app.route('/characters/<int:id>', methods=['DELETE'])
+def delete_character(id):
+    character_to_delete = Characters.query.get(id)
+    if character_to_delete is None:
+        return jsonify({"msg": "Character not found"}), 404
+
+    db.session.delete(character_to_delete)
+    db.session.commit()
+
+    upgrated_characters_list = Characters.query.all()
+    characters_list = []
+    for character in upgrated_characters_list:
+        characters_list.append(character.serialize())
+
+    return jsonify({"Upgrated characters list": characters_list}), 200
