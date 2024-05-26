@@ -277,3 +277,30 @@ def edit_user(id):
         user_to_edit.last_name = body["last_name"]
     db.session.commit()
     return jsonify({"user edited": user_to_edit.serialize()})
+
+# Editar personaje
+@app.route('/characters/<int:id>', methods=['PUT'])
+def edit_character(id):
+    body = request.get_json(silent=True)
+    character_to_edit = Characters.query.get(id)
+    if character_to_edit is None:
+        return jsonify({"msg": "Character not found"}), 404
+    if "name" in body:
+        character_to_edit.name = body["name"]
+    if "heigth" in body:
+        character_to_edit.last_name = body["heigth"]
+    if "mass" in body:
+        character_to_edit = body["mass"]
+    if "hair_color" in body:
+        character_to_edit = body["hair_color"]
+    if "eye_color" in body:
+        character_to_edit = body["eye_color"]
+    if "skin_color" in body:
+        character_to_edit = body["skin_color"]
+    if "birth_year" in body:
+        character_to_edit = body["birth_year"]
+    if "gender" in body:
+        character_to_edit = body["gender"]
+
+    db.session.commit()
+    return jsonify({"character edited": character_to_edit.serialize()})
