@@ -404,3 +404,19 @@ def delete_starship(id):
 
     return jsonify({"Upgrated starships list": starships_list}), 200
 
+# Borrar planeta
+@app.route('/planets/<int:id>', methods=['DELETE'])
+def delete_planet(id):
+    planet_to_delete = Planets.query.get(id)
+    if planet_to_delete is None:
+        return jsonify({"msg": "Planet not found"}), 404
+
+    db.session.delete(planet_to_delete)
+    db.session.commit()
+
+    upgrated_planets_list = Planets.query.all()
+    planets_list = []
+    for planet in upgrated_planets_list:
+        planets_list.append(planet.serialize())
+
+    return jsonify({"Upgrated planets list": planets_list}), 200
