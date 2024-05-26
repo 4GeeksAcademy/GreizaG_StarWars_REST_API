@@ -352,3 +352,21 @@ def edit_planet(id):
 
     db.session.commit()
     return jsonify({"planet edited": planet_to_edit.serialize()})
+
+# Borrar usuario
+@app.route('/users/<int:id>', methods=['DELETE'])
+def delete_user(id):
+    user_to_delete = Users.query.get(id)
+    if user_to_delete is None:
+        return jsonify({"msg": "User not found"}), 404
+
+    db.session.delete(user_to_delete)
+    db.session.commit()
+
+    upgrated_users_list = Users.query.all()
+    users_list = []
+    for user in upgrated_users_list:
+        users_list.append(user.serialize())
+
+    return jsonify({"Upgrated users list": users_list}), 200
+
