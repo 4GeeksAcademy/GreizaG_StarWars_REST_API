@@ -64,3 +64,31 @@ class Characters(db.Model):
             "gender": self.gender
         }
 
+class Starships(db.Model):
+    __tablename__ = 'starships'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    model = db.Column(db.String(50))
+    starship_class = db.Column(db.String(50))
+    length = db.Column(db.Integer)
+    crew = db.Column(db.String(20))
+    passengers = db.Column(db.String(20))
+
+    def generateId():
+        global last_id_starships
+        last_id_starships += 1
+        return last_id_starships
+
+    def __repr__(self):
+        return f"Starship name: {self.name}"
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "model": self.model,
+            "starship_class": self.starship_class,
+            "length": self.length,
+            "crew": self.crew,
+            "passengers": self.passengers
+        }

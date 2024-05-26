@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Users, Characters
+from models import db, Users, Characters, Starships
 #from models import Person
 
 app = Flask(__name__)
@@ -140,3 +140,53 @@ def new_character():
     db.session.commit()
     
     return jsonify({"data": new_character.serialize()}), 201
+
+# Traer todas las naves
+@app.route('/starships', methods=['GET'])
+def get_all_starships():
+    all_starships = Starships.query.all()
+    starships_serialized = []
+    for starship in all_starships:
+        starships_serialized.append(starship.serialize())
+        print(starships_serialized)
+        return jsonify({"data": starships_serialized}), 200
+    
+# Traer sólo una nave
+@app.route('/starships/<int:id>', methods=['GET'])
+def get_single_starship(id):
+    single_starship = Starships.query.get(id)
+    if single_starship is None:
+        return jsonify({"msg": "Starship with id: {}, not found".format(id)}), 400
+    return jsonify({"data": single_starship.serialize()}), 200
+
+# Crear una nueva nave
+@app.route('/starship/', methods=['POST'])
+def new_starship():
+    body = request.get_json(silent=True)
+    if body is None:
+        return jsonify({"msg": "You should sen info in body"}), 400
+    if "name" not in body:
+        return jsonify({"msg": "Name is needed"}), 400
+    if "model" not in body:
+        return jsonify({"msg": "Model is needed"}), 400
+    if "starship_class" not in body:
+        return jsonify({"msg": "Starship class is needed"}), 400
+    if "length" not in body:
+        return jsonify({"msg": "Length is needed"}), 400
+    if "crew" not in body:
+        return jsonify({"msg": "Crew is needed"}), 400
+    if "passengers" not in body:
+        return jsonify({"msg": "Passengers is needed"}), 400
+    
+    new_starship = Starships()
+    new_starship.id = body.get("id", Starships.generateId())
+    new_starship.name = body["name"]
+    new_starship.model = body["model"]
+    new_starship.starship_class = body["starship_class"]
+    new_starship.length = body["length"]
+    new_starship.crew = body["crew"]
+    new_starship.passengers = body["passengers"]
+    db.session.add(new_starship)
+    db.session.commit()
+    
+    return jsonify({"data": new_starship.serialize()}), 201
