@@ -92,3 +92,34 @@ class Starships(db.Model):
             "crew": self.crew,
             "passengers": self.passengers
         }
+
+class Planets(db.Model):
+    __tablename__ = 'planets'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    diameter = db.Column(db.Integer)
+    gravity = db.Column(db.String(50))
+    population = db.Column(db.String(20))
+    climate = db.Column(db.String(50))
+    terrain = db.Column(db.String(50))
+    surface_water = db.Column(db.String(20))
+
+    def generateId():
+        global last_id_planets
+        last_id_planets += 1
+        return last_id_planets
+
+    def __repr__(self):
+        return f"Planet name: {self.name}"
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "diameter": self.diameter,
+            "gravity": self.gravity,
+            "population": self.population,
+            "climate": self.climate,
+            "terrain": self.terrain,
+            "surface_water": self.surface_water
+        }

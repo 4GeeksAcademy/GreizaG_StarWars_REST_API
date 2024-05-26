@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, Users, Characters, Starships
+from models import db, Users, Characters, Starships, Planets
 #from models import Person
 
 app = Flask(__name__)
@@ -148,8 +148,8 @@ def get_all_starships():
     starships_serialized = []
     for starship in all_starships:
         starships_serialized.append(starship.serialize())
-        print(starships_serialized)
-        return jsonify({"data": starships_serialized}), 200
+    print(starships_serialized)
+    return jsonify({"data": starships_serialized}), 200
     
 # Traer sólo una nave
 @app.route('/starships/<int:id>', methods=['GET'])
@@ -164,7 +164,7 @@ def get_single_starship(id):
 def new_starship():
     body = request.get_json(silent=True)
     if body is None:
-        return jsonify({"msg": "You should sen info in body"}), 400
+        return jsonify({"msg": "You should send info in body"}), 400
     if "name" not in body:
         return jsonify({"msg": "Name is needed"}), 400
     if "model" not in body:
@@ -190,3 +190,56 @@ def new_starship():
     db.session.commit()
     
     return jsonify({"data": new_starship.serialize()}), 201
+
+# Traer todos los planetas
+@app.route('/planets', methods=['GET'])
+def get_all_planets():
+    all_planets = Planets.query.all()
+    planets_serialized = []
+    for planet in all_planets:
+        planets_serialized.append(planet.serialize())
+    print(planets_serialized)
+    return jsonify({"data": planets_serialized}), 200
+
+# Traer sólo un planeta
+@app.route('/planets/<int:id>', methods=['GET'])
+def get_single_planet(id):
+    single_planet = Planets.query.get(id)
+    if single_planet is None:
+        return jsonify({"msg": "Planet with id: {}, not found".format(id)}), 400
+    return jsonify({"data": single_planet.serialize()}), 200
+
+# Crear nuevo planeta
+@app.route('/planet', methods=['POST'])
+def new_planet():
+    body = request.get_json(silent=True)
+    if body is None:
+        return jsonify({"msg": "You should send info in body"}), 400
+    if "name" not in body:
+        return jsonify({"msg": "Name is needed"}), 400
+    if "diameter" not in body:
+        return jsonify({"msg": "Diameter is needed"}), 400
+    if "gravity" not in body:
+        return jsonify({"msg": "Gravity is needed"}), 400
+    if "population" not in body:
+        return jsonify({"msg": "Population is needed"}), 400
+    if "climate" not in body:
+        return jsonify({"msg": "Climate is needed"}), 400
+    if "terrain" not in body:
+        return jsonify({"msg": "Terrain is needed"}), 400
+    if "surface_water" not in body:
+        return jsonify({"msg": "Surface water is needed"}), 400
+    
+    new_planet = Planets()
+    new_planet.id = body.get("id", Planets.generateId())
+    new_planet.name = body["name"]
+    new_planet.diameter = body["diameter"]
+    new_planet.gravity = body["gravity"]
+    new_planet.population = body["population"]
+    new_planet.climate = body["climate"]
+    new_planet.terrain = body["terrain"]
+    new_planet.surface_water = body["surface_water"]
+    db.session.add(new_planet)
+    db.session.commit()
+
+    return jsonify({"data": new_planet.serialize()}), 201
