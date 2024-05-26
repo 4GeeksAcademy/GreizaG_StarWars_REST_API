@@ -288,19 +288,19 @@ def edit_character(id):
     if "name" in body:
         character_to_edit.name = body["name"]
     if "heigth" in body:
-        character_to_edit.last_name = body["heigth"]
+        character_to_edit.heigth = body["heigth"]
     if "mass" in body:
-        character_to_edit = body["mass"]
+        character_to_edit.mass = body["mass"]
     if "hair_color" in body:
-        character_to_edit = body["hair_color"]
+        character_to_edit.hair_color = body["hair_color"]
     if "eye_color" in body:
-        character_to_edit = body["eye_color"]
+        character_to_edit.eye_color = body["eye_color"]
     if "skin_color" in body:
-        character_to_edit = body["skin_color"]
+        character_to_edit.skin_color = body["skin_color"]
     if "birth_year" in body:
-        character_to_edit = body["birth_year"]
+        character_to_edit.birth_year = body["birth_year"]
     if "gender" in body:
-        character_to_edit = body["gender"]
+        character_to_edit.gender = body["gender"]
 
     db.session.commit()
     return jsonify({"character edited": character_to_edit.serialize()})
@@ -315,15 +315,40 @@ def edit_starship(id):
     if "name" in body:
         starship_to_edit.name = body["name"]
     if "model" in body:
-        starship_to_edit.last_name = body["model"]
+        starship_to_edit.model = body["model"]
     if "starship_class" in body:
-        starship_to_edit = body["starship_class"]
+        starship_to_edit.starship_class = body["starship_class"]
     if "length" in body:
-        starship_to_edit = body["length"]
+        starship_to_edit.length = body["length"]
     if "crew" in body:
-        starship_to_edit = body["crew"]
+        starship_to_edit.crew = body["crew"]
     if "passengers" in body:
-        starship_to_edit = body["passengers"]
+        starship_to_edit.passengers = body["passengers"]
 
     db.session.commit()
-    return jsonify({"character edited": starship_to_edit.serialize()})
+    return jsonify({"starship edited": starship_to_edit.serialize()})
+
+# Editar planeta
+@app.route('/planets/<int:id>', methods=['PUT'])
+def edit_planet(id):
+    body = request.get_json(silent=True)
+    planet_to_edit = Planets.query.get(id)
+    if planet_to_edit is None:
+        return jsonify({"msg": "Planet not found"}), 404
+    if "name" in body:
+        planet_to_edit.name = body["name"]
+    if "diameter" in body:
+        planet_to_edit.diameter = body["diameter"]
+    if "gravity" in body:
+        planet_to_edit.gravity = body["gravity"]
+    if "population" in body:
+        planet_to_edit.population = body["population"]
+    if "climate" in body:
+        planet_to_edit.climate = body["climate"]
+    if "terrain" in body:
+        planet_to_edit.terrain = body["terrain"]
+    if "surface_water" in body:
+        planet_to_edit.surface_water = body["surface_water"]
+
+    db.session.commit()
+    return jsonify({"planet edited": planet_to_edit.serialize()})
