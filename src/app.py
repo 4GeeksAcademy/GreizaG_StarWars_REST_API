@@ -70,7 +70,6 @@ def new_user():
         return jsonify({"msg": "Password is needed"}), 400
     
     new_user = Users()
-    new_user.id = body.get("id", Users.generateId())
     new_user.name = body["name"]
     new_user.last_name = body["last_name"]
     new_user.email = body["email"]
@@ -127,7 +126,6 @@ def new_character():
         return jsonify({"msg": "Gender is needed"}), 400
     
     new_character = Characters()
-    new_character.id = body.get("id", Characters.generateId())
     new_character.name = body["name"]
     new_character.heigth = body["heigth"]
     new_character.mass = body["mass"]
@@ -179,7 +177,6 @@ def new_starship():
         return jsonify({"msg": "Passengers is needed"}), 400
     
     new_starship = Starships()
-    new_starship.id = body.get("id", Starships.generateId())
     new_starship.name = body["name"]
     new_starship.model = body["model"]
     new_starship.starship_class = body["starship_class"]
@@ -231,7 +228,6 @@ def new_planet():
         return jsonify({"msg": "Surface water is needed"}), 400
     
     new_planet = Planets()
-    new_planet.id = body.get("id", Planets.generateId())
     new_planet.name = body["name"]
     new_planet.diameter = body["diameter"]
     new_planet.gravity = body["gravity"]
@@ -263,6 +259,11 @@ def user_favorite_list(id):
         favorite_planets_serialized.append(planet.serialize()["name"])
     
     return jsonify({"favorites": {"characters": favorite_characters_serialized, "starships": favorite_starships_serialized, "planets": favorite_planets_serialized}}), 200
+
+# favorite_characters_serialized.append({'favorite_character_id': favorite_character.id, "character": character.serialize(),"user_id": id})
+# favorite_starships_serialized.append({'favorite_starship_id': favorite_starship.id, "starship": starship.serialize(),"user_id": id})
+#  favorite_characters_serialized.append({'favorite_character_id': favorite_character.id, "character": character.serialize(),"user_id": id})
+
 
 # Editar usuario
 @app.route('/users/<int:id>', methods=['PUT'])
@@ -422,61 +423,54 @@ def delete_planet(id):
     return jsonify({"Upgrated planets list": planets_list}), 200
 
 # Borrar personaje favorito
-@app.route('/users/<int:user_id>/favorite/character/{body}', methods=['DELETE'])
-def delete_favorite_character(user_id):
-    body = request.get_json(silent=True)
-    favorite_character_to_delete = FavoriteCharacters.query.get(body["character_id"])
+@app.route('/user/<int:id>/favorite/character/<int:favorite_character_id>', methods=['DELETE'])
+def delete_favorite_character(id, favorite_character_id):
+    favorite_character_to_delete = FavoriteCharacters.query.filter_by(user_id=id, character_id=favorite_character_id).first()
     if favorite_character_to_delete is None:
         return jsonify({"msg": "Favorite Character not found"}), 404
     
-    db.session.delete(favorite_character_to_delete)
-    db.session.commit()
-
-    upgrated_favorite_characters_list = FavoriteCharacters.query.all()
-    favorite_characters_list = []
-    for favorite_character in upgrated_favorite_characters_list:
-        favorite_characters_list.append(favorite_character.serialize()["name"])
+    print(favorite_character_to_delete.serialize())
+    try:
+        db.session.delete(favorite_character_to_delete)
+        db.session.commit()
+        return jsonify({"msg": "Character deleted"}), 200
+    except Exception as error:
+        db.session.rollback()
+        print(error)
+        return jsonify({"msg": "An error occurred when deleting the favorite character"}), 500
     
-    return jsonify({"Upgrated Favorite Character list": favorite_characters_list})
-
-# @app.route('/users/<int:name>/favorites', methods=['DELETE'])
-# def delete_favorite(name):
-#     favorite_character_to_delete = FavoriteCharacters.query.all(name)
-#     if favorite_character_to_delete is None:
-#         return jsonify({"msg": "Favorite Character not found"}), 404
+# Borrar nave favorita
+@app.route('/user/<int:id>/favorite/starship/<int:favorite_starship_id>', methods=['DELETE'])
+def delete_favorite_starship(id, favorite_starship_id):
+    favorite_starship_to_delete = FavoriteStarships.query.filter_by(user_id=id, starship_id=favorite_starship_id).first()
+    if favorite_starship_to_delete is None:
+        return jsonify({"msg": "Favorite Starship not found"}), 404
     
-#     db.session.delete(favorite_character_to_delete)
-#     db.session.commit()
-
-#     upgrated_favorite_characters_list = FavoriteCharacters.query.all()
-#     favorite_characters_list = []
-#     for favorite_character in upgrated_favorite_characters_list:
-#         favorite_characters_list.append(favorite_character.serialize()["name"])
+    print(favorite_starship_to_delete.serialize())
+    try:
+        db.session.delete(favorite_starship_to_delete)
+        db.session.commit()
+        return jsonify({"msg": "Starship deleted"}), 200
+    except Exception as error:
+        db.session.rollback()
+        print(error)
+        return jsonify({"msg": "An error occurred when deleting the favorite starship"}), 500
     
-#     favorite_starship_to_delete = FavoriteStarships.query.all(name)
-#     if favorite_starship_to_delete is None:
-#         return jsonify({"msg": "Favorite Starship not found"}), 404
+# Borrar planeta favorita
+@app.route('/user/<int:id>/favorite/planet/<int:favorite_planet_id>', methods=['DELETE'])
+def delete_favorite_planet(id, favorite_planet_id):
+    favorite_planet_to_delete = FavoritePlanets.query.filter_by(user_id=id, planet_id=favorite_planet_id).first()
+    if favorite_planet_to_delete is None:
+        return jsonify({"msg": "Favorite Planet not found"}), 404
     
-#     db.session.delete(favorite_starship_to_delete)
-#     db.session.commit()
+    print(favorite_planet_to_delete.serialize())
+    try:
+        db.session.delete(favorite_planet_to_delete)
+        db.session.commit()
+        return jsonify({"msg": "Planet deleted"}), 200
+    except Exception as error:
+        db.session.rollback()
+        print(error)
+        return jsonify({"msg": "An error occurred when deleting the favorite planet"}), 500
 
-#     upgrated_favorite_starships_list = FavoriteStarships.query.all()
-#     favorite_starships_list = []
-#     for favorite_starship in upgrated_favorite_starships_list:
-#         favorite_starships_list.append(favorite_starship.serialize()["name"])
-
-#     favorite_planet_to_delete = FavoritePlanets.query.all(name)
-#     if favorite_planet_to_delete is None:
-#         return jsonify({"msg": "Favorite Planet not found"}), 404
-    
-#     db.session.delete(favorite_planet_to_delete)
-#     db.session.commit()
-
-#     upgrated_favorite_planets_list = FavoritePlanets.query.all()
-#     favorite_planets_list = []
-#     for favorite_planet in upgrated_favorite_planets_list:
-#         favorite_planets_list.append(favorite_planet.serialize()["name"])
-
-#     return jsonify({"favorites": {"Characters": favorite_characters_list, "Starships": favorite_starships_list, "Planets": favorite_planets_list}}), 200
-
-    
+# Agregar personaje favorito
