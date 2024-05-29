@@ -2,11 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-last_id_users = 0
-last_id_characters = 0
-last_id_starships = 0
-last_id_planets = 0
-
 class Users(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)

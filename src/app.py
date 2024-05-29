@@ -474,3 +474,139 @@ def delete_favorite_planet(id, favorite_planet_id):
         return jsonify({"msg": "An error occurred when deleting the favorite planet"}), 500
 
 # Agregar personaje favorito
+@app.route('/user/favorite/character', methods=['POST'])
+def add_new_favorite_character():
+    body = request.get_json(silent=True)
+    user_id = body.get('user_id')
+    character_id = body.get('character_id')
+
+    if body is None:
+        return jsonify({"msg": "Please enter user_id and character_id information"}), 400
+
+    user = Users.query.get(user_id)
+    if user is None:
+        return jsonify({"msg": f'User with ID: {user_id}, not found'}), 404
+
+    character = Characters.query.get(character_id)
+    if character is None:
+        return jsonify({"msg": f'Character with ID: {character_id}, not found.'}), 404
+    
+    check_new_favorite_character = FavoriteCharacters.query.filter_by(user_id=user_id, character_id=character_id).first()
+    if check_new_favorite_character:
+        return jsonify({"msg": "This character already exists in favorites for this user"}), 409
+        
+    new_favorite_character = FavoriteCharacters(user_id=body["user_id"], character_id=body["character_id"])
+    print(new_favorite_character)
+    
+    db.session.add(new_favorite_character)
+    db.session.commit()
+
+    user_favorite_characters = db.session.query(FavoriteCharacters, Characters).join(Characters).filter(FavoriteCharacters.user_id == user_id).all()
+    user_favorite_characters_serialized = []
+    for user_favorite_character, character in user_favorite_characters:
+        user_favorite_characters_serialized.append(character.serialize()["name"])
+
+    return jsonify({"favorites": {"characters": user_favorite_characters_serialized}}), 201
+
+# Agregar una nueva nave favorita
+@app.route('/user/favorite/starship', methods=['POST'])
+def add_new_favorite_starship():
+    body = request.get_json(silent=True)
+    user_id = body.get('user_id')
+    starship_id = body.get('starship_id')
+
+    if body is None:
+        return jsonify({"msg": "Please enter user_id and starship_id information"}), 400
+
+    user = Users.query.get(user_id)
+    if user is None:
+        return jsonify({"msg": f'User with ID: {user_id}, not found'}), 404
+
+    starship = Starships.query.get(starship_id)
+    if starship is None:
+        return jsonify({"msg": f'Starship with ID: {starship_id}, not found.'}), 404
+    
+    check_new_favorite_starship = FavoriteStarships.query.filter_by(user_id=user_id, starship_id=starship_id).first()
+    if check_new_favorite_starship:
+        return jsonify({"msg": "This starship already exists in favorites for this user"}), 409
+        
+    new_favorite_starship = FavoriteStarships(user_id=body["user_id"], starship_id=body["starship_id"])
+    print(new_favorite_starship)
+    
+    db.session.add(new_favorite_starship)
+    db.session.commit()
+
+    user_favorite_starships = db.session.query(FavoriteStarships, Starships).join(Starships).filter(FavoriteStarships.user_id == user_id).all()
+    user_favorite_starships_serialized = []
+    for user_favorite_starship, starship in user_favorite_starships:
+        user_favorite_starships_serialized.append(starship.serialize()["name"])
+
+    return jsonify({"favorites": {"starships": user_favorite_starships_serialized}}), 201
+
+# Agregar nuevo planeta favorito
+@app.route('/user/favorite/planet', methods=['POST'])
+def add_new_favorite_planet():
+    body = request.get_json(silent=True)
+    user_id = body.get('user_id')
+    planet_id = body.get('planet_id')
+
+    if body is None:
+        return jsonify({"msg": "Please enter user_id and starship_id information"}), 400
+    
+    user = Users.query.get(user_id)
+    if user is None:
+        return jsonify({"msg": f'User with ID: {user_id}, not found'}), 404
+    
+    planet = Planets.query.get(planet_id)
+    if planet is None:
+        return jsonify({"msg": f'Planet with ID: {planet_id}, not found'}), 404
+    
+    check_new_favorite_planet = FavoritePlanets.query.filter_by(user_id=user_id, planet_id=planet_id).first()
+    if check_new_favorite_planet:
+        return jsonify({"msg": "This planet already exists in favorites for this user"}), 409
+    
+    new_favorite_planet = FavoritePlanets(user_id=body["user_id"], planet_id=body["planet_id"])
+    print(new_favorite_planet)
+
+    db.session.add(new_favorite_planet)
+    db.session.commit()
+
+    user_favorite_planets = db.session.query(FavoritePlanets, Planets).join(Planets).filter(FavoritePlanets.user_id == user_id).all()
+    user_favorite_planets_serialized = []
+    for user_favorite_planet, planets in user_favorite_planets:
+        user_favorite_planets_serialized.append(planet.serialize()["name"])
+
+    return jsonify({"msg": {"planets": user_favorite_planets_serialized}}), 201
+
+# @app.route('/user/favorite/starship', methods=['POST'])
+# def add_new_favorite_starship():
+#     body = request.get_json(silent=True)
+#     user_id = body.get('user_id')
+#     starship_id = body.get('starship_id')
+
+#     if body is None:
+#         return jsonify({"msg": "Please enter user_id and starship_id information"}), 400
+    
+#     user = Users.query.get(user_id)
+#     if user is None:
+#         return jsonify({"msg": f'User with ID: {user_id}, not found'}), 404
+    
+#     starship = Starships.query.get('starship_id')
+#     if starship is None:
+#         return jsonify({"msg": f'Starship with ID: {starship_id}, not found'}), 404
+    
+#     check_new_favorite_starship = FavoriteStarships.query.filter_by(user_id=user_id, starship_id=starship_id).first()
+#     if check_new_favorite_starship:
+#         return jsonify({"msg": "This starship already exists in favorites for this user"}), 409
+    
+#     new_favorite_starship = FavoriteStarships(user_id=body["user_id"], starship_id=body["starship_id"])
+
+#     db.session.add(new_favorite_starship)
+#     db.session.commit()
+
+#     user_favorite_starships = db.session.query(FavoriteStarships, Starships).join(Starships).filter(FavoriteStarships.user_id == user_id).all()
+#     user_favorite_starships_serialized = []
+#     for user_favorite_starship, starship in user_favorite_starships:
+#         user_favorite_starships_serialized.append(starship.serialize()['name'])
+
+#     return jsonify({"msg": {"Starships": user_favorite_starships_serialized}}), 201
